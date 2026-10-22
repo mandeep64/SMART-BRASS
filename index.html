@@ -1,0 +1,349 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SmartBrass</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+/* Layout: one shop-floor console. Stamped-metal header, tab strip, one working panel at a time. Brass is the single accent; green/amber/red are status only. */
+:root{
+  --bg:#EDEBE6; --panel:#FAF9F6; --ink:#1B1713; --mute:#6A6358; --line:#D6D1C5;
+  --brass:#8F6118; --brass-soft:#F1E3C6; --on-brass:#FFFFFF;
+  --ok:#2B7547; --ok-soft:#DDEEE3; --warn:#9A6410; --warn-soft:#F6E8C8; --bad:#B03A25; --bad-soft:#F6DDD6;
+  --display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13100D; --panel:#1C1814; --ink:#EFE8DA; --mute:#A39A89; --line:#352F26;
+  --brass:#D8A24C; --brass-soft:#3A2D17; --on-brass:#1B1306;
+  --ok:#5FBF86; --ok-soft:#18301F; --warn:#E3AC4C; --warn-soft:#38290F; --bad:#EE7C61; --bad-soft:#3A1D16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13100D; --panel:#1C1814; --ink:#EFE8DA; --mute:#A39A89; --line:#352F26;
+  --brass:#D8A24C; --brass-soft:#3A2D17; --on-brass:#1B1306;
+  --ok:#5FBF86; --ok-soft:#18301F; --warn:#E3AC4C; --warn-soft:#38290F; --bad:#EE7C61; --bad-soft:#3A1D16; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0;
+  padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.03em;margin:0;line-height:1.05;text-wrap:balance}
+h2{font-size:1.9rem;font-weight:800}
+h3{font-size:1.2rem;font-weight:700;letter-spacing:.05em}
+p{margin:0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.label{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:600}
+header{padding-block:22px 14px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.brand{font-family:var(--display);font-weight:800;font-size:2.6rem;letter-spacing:.04em;text-transform:uppercase;line-height:.9}
+.brand span{color:var(--brass)}
+.tag{color:var(--mute);font-size:.85rem;max-width:34ch}
+nav{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);margin-bottom:22px;scrollbar-width:thin}
+nav button{font:600 .95rem var(--body);background:none;border:0;color:var(--mute);padding:11px 14px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brass)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+section.tab{display:flex;flex-direction:column;gap:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.hero{padding:26px 22px;border:1px solid var(--line);border-radius:6px;background:var(--panel);display:grid;gap:10px}
+.hero h1{font-size:clamp(2rem,6.5vw,3.4rem);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--brass)}
+.hero p{color:var(--mute);max-width:62ch}
+.kpi .n{font-family:var(--display);font-size:2.6rem;font-weight:800;line-height:1}
+.kpi .s{color:var(--mute);font-size:.82rem}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;counter-reset:st}
+.flow .st{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--panel);display:grid;gap:4px}
+.flow .st b{font-family:var(--display);font-size:1.25rem;text-transform:uppercase;letter-spacing:.05em}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-mute{background:var(--line);color:var(--mute)}
+.bar{display:grid;grid-template-columns:minmax(110px,170px) 1fr 34px;gap:10px;align-items:center;font-size:.88rem;padding-block:3px}
+.bar .t{height:14px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--brass)}
+.bar .t i.hot{background:var(--bad)}
+.alert{border-left:4px solid var(--bad);background:var(--bad-soft);padding:12px 14px;border-radius:0 6px 6px 0;display:grid;gap:2px}
+.alert.warn{border-color:var(--warn);background:var(--warn-soft)}
+.alert.ok{border-color:var(--ok);background:var(--ok-soft)}
+.alert b{font-weight:600}
+label{display:grid;gap:5px;font-size:.85rem;font-weight:500}
+select,input[type=number],input[type=search]{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);min-width:0;width:100%}
+.btn{font:600 .92rem var(--body);background:var(--brass);color:var(--on-brass);border:0;border-radius:5px;padding:11px 18px;cursor:pointer}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn:hover{filter:brightness(1.08)}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px}
+.chk{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:5px;padding:9px 11px;cursor:pointer;background:var(--bg);font-weight:500}
+.chk input{accent-color:var(--brass);width:17px;height:17px;margin:0}
+.chk:has(input:checked){border-color:var(--bad);background:var(--bad-soft)}
+.chk.bis:has(input:checked){border-color:var(--ok);background:var(--ok-soft)}
+.cartons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.carton{border:1px solid var(--line);border-radius:6px;padding:14px;background:var(--panel);display:grid;gap:10px}
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.slot{aspect-ratio:1;border-radius:3px;border:0;font:500 .66rem var(--mono);cursor:pointer;color:#fff;padding:0}
+.s-ready{background:var(--ok)}.s-wip{background:var(--warn)}.s-hold{background:var(--bad)}.s-pulled{outline:3px solid var(--ink);outline-offset:1px}
+.slot.s-ready{color:#fff}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--mute)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.trace{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+@media (max-width:560px){.trace{grid-template-columns:1fr}}
+.qr{background:#fff;padding:12px;border-radius:6px;width:fit-content;border:1px solid var(--line)}
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.tl li{display:grid;grid-template-columns:14px 1fr;gap:12px;padding-bottom:16px;position:relative}
+.tl li::before{content:"";position:absolute;left:6px;top:14px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl .dot{width:14px;height:14px;border-radius:50%;margin-top:3px;background:var(--line)}
+.tl .dot.ok{background:var(--ok)}.tl .dot.bad{background:var(--bad)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.scroll{overflow-x:auto}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+.cmp .card .big{font-family:var(--display);font-size:2.4rem;font-weight:800;line-height:1}
+.cmp .old .big{color:var(--bad)}.cmp .new .big{color:var(--ok)}
+.gauge{height:16px;background:var(--line);border-radius:2px;overflow:hidden}
+.gauge i{display:block;height:100%;background:var(--ok)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+.row>*{flex:1 1 180px;min-width:0}
+.row>.btn{flex:0 0 auto}
+.note{font-size:.8rem;color:var(--mute)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:6px;font-weight:600;font-size:.9rem;z-index:20;max-width:90vw}
+a{color:var(--brass)}
+@media (prefers-reduced-motion:no-preference){.bar .t i,.gauge i{transition:width .5s ease}}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <div class="label">Moradabad brassware · quality &amp; traceability</div>
+    <div class="brand">Smart<span>Brass</span></div>
+  </div>
+  <p class="tag">Inspect at every stage. Trace every piece. Pull one piece, not the whole carton.</p>
+</header>
+<nav role="tablist" id="nav"></nav>
+<main id="main"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+/* ---------- data ---------- */
+var STAGES=['Casting','Polishing','Finishing'];
+var DEFECTS={
+  Casting:[['Porosity',5],['Blowhole',2],['Cold shut',2],['Shrinkage cavity',1],['Misrun',1]],
+  Polishing:[['Deep scratches',4],['Uneven buffing',3],['Dent / dig',2],['Pitting',1]],
+  Finishing:[['Lacquer bubbles',3],['Colour mismatch',3],['Tarnish spots',2],['Plating peel',1]]};
+var CAUSE={
+  'Porosity':'Check mould moisture, melt degassing and pouring temperature.',
+  'Blowhole':'Check core venting and sand permeability.',
+  'Cold shut':'Pouring temperature too low or pouring paused. Check ladle practice.',
+  'Shrinkage cavity':'Check riser size and feeding path.',
+  'Misrun':'Check melt fluidity and gating design.',
+  'Deep scratches':'Check buff compound grade and the wheel change schedule.',
+  'Uneven buffing':'Check operator pressure and polishing time per piece.',
+  'Dent / dig':'Check handling trays and stacking between stages.',
+  'Pitting':'Check surface cleaning before polishing.',
+  'Lacquer bubbles':'Check drying time, spray distance and humidity.',
+  'Colour mismatch':'Check lacquer batch and the reference sample.',
+  'Tarnish spots':'Check cleaning residue and storage conditions.',
+  'Plating peel':'Check surface preparation before coating.'};
+var PRODUCT='Brass diya set (3 pc)';
+var LOT='BR-2610-A';
+var CARTON_SIZE=12;
+var pieces=[];
+var threshold=4;
+var bis=[
+ {id:'rm',t:'Raw material (brass ingot / scrap) test certificate on file',auto:false,v:true},
+ {id:'alloy',t:'Alloy composition (Cu / Zn %) recorded for the lot',auto:false,v:false},
+ {id:'cast',t:'Casting inspection recorded for every piece',auto:'Casting'},
+ {id:'pol',t:'Polishing inspection recorded for every piece',auto:'Polishing'},
+ {id:'fin',t:'Finishing inspection recorded for every piece',auto:'Finishing'},
+ {id:'dim',t:'Dimension and weight sample check recorded',auto:false,v:true},
+ {id:'mark',t:'Lot number marked on product',auto:false,v:true},
+ {id:'pack',t:'Carton labelled with lot ID and piece count',auto:false,v:true},
+ {id:'nc',t:'Non-conformity and rework log maintained',auto:false,v:false}];
+var STDS=[
+ ['IS 292','Leaded brass ingots and castings','Casting stage: composition and casting soundness'],
+ ['IS 319','Free-cutting brass bars, rods and sections','Raw stock turned or machined into parts'],
+ ['IS 410','Cold-rolled brass sheet, strip and foil','Sheet-metal brass articles'],
+ ['IS 407','Brass tubes for general purposes','Tube-based articles']];
+
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function pickW(list,r){var s=0,i;for(i=0;i<list.length;i++)s+=list[i][1];var x=r()*s;for(i=0;i<list.length;i++){x-=list[i][1];if(x<=0)return list[i][0]}return list[0][0]}
+function seed(){
+  var r=rng(2610),fp={Casting:.17,Polishing:.10,Finishing:.07},n=60,i,p,st,d,k;
+  for(i=0;i<n;i++){
+    p={id:'P-'+String(i+1).padStart(4,'0'),carton:'C-'+String(Math.floor(i/CARTON_SIZE)+1).padStart(2,'0'),slot:i%CARTON_SIZE+1,stages:{},pulled:false};
+    var stop=false,maxStage=(i>=52)?2:3;
+    for(k=0;k<STAGES.length;k++){
+      st=STAGES[k];
+      if(stop||k>=maxStage){p.stages[st]=null;continue}
+      if(r()<fp[st]){d=[pickW(DEFECTS[st],r)];if(r()<.18)d.push(pickW(DEFECTS[st],r));d=d.filter(function(x,j){return d.indexOf(x)===j});
+        p.stages[st]={res:'fail',defects:d,day:day(i,k)};stop=true}
+      else p.stages[st]={res:'pass',defects:[],day:day(i,k)};
+    }
+    pieces.push(p);
+  }
+}
+function day(i,k){var base=new Date(2026,9,6+Math.floor(i/10)+k*2);return base.toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}
+function status(p){var f=false,all=true;STAGES.forEach(function(s){var x=p.stages[s];if(x&&x.res==='fail')f=true;if(!x||x.res!=='pass')all=false});return f?'hold':(all?'ready':'wip')}
+function nextStage(p){for(var i=0;i<STAGES.length;i++){if(!p.stages[STAGES[i]])return STAGES[i]}return null}
+function counts(){var c={};STAGES.forEach(function(s){DEFECTS[s].forEach(function(d){c[s+'|'+d[0]]=0})});
+  pieces.forEach(function(p){STAGES.forEach(function(s){var x=p.stages[s];if(x&&x.res==='fail')x.defects.forEach(function(d){c[s+'|'+d]++})})});return c}
+function stageStats(s){var done=0,fail=0;pieces.forEach(function(p){var x=p.stages[s];if(x){done++;if(x.res==='fail')fail++}});return{done:done,fail:fail}}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function $(s){return document.querySelector(s)}
+function toast(m){var t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},2600)}
+
+/* ---------- derived ---------- */
+function autoCoverage(stage){var need=0,have=0;var idx=STAGES.indexOf(stage);
+  pieces.forEach(function(p){var priorFail=false,j;for(j=0;j<idx;j++){var q=p.stages[STAGES[j]];if(q&&q.res==='fail')priorFail=true}
+    if(priorFail)return;need++;if(p.stages[stage])have++});return{need:need,have:have}}
+function bisScore(){var ok=0;bis.forEach(function(b){if(b.auto){var c=autoCoverage(b.auto);if(c.have===c.need)ok++}else if(b.v)ok++});return Math.round(ok/bis.length*100)}
+function cartonList(){var m={};pieces.forEach(function(p){(m[p.carton]=m[p.carton]||[]).push(p)});return Object.keys(m).sort().map(function(k){return{id:k,items:m[k]}})}
+
+/* ---------- views ---------- */
+var TABS=[['overview','Overview'],['inspect','Inspect'],['defects','Defect analysis'],['trace','QR trace'],['bis','BIS checklist'],['ship','Dispatch & cost']];
+  var cur='overview',selPiece='P-0007',complaint=null,lastAdded=null,scanStream=null,scanFrame=null;
+
+function barRow(label,val,max,hot){return '<div class="bar"><span>'+esc(label)+'</span><div class="t"><i class="'+(hot?'hot':'')+'" style="width:'+(max?val/max*100:0)+'%"></i></div><span class="mono">'+val+'</span></div>'}
+
+function vOverview(){
+  var n=pieces.length,ready=0,hold=0,fpyNum=0,c=counts(),worst=null;
+  pieces.forEach(function(p){var s=status(p);if(s==='ready')ready++;if(s==='hold')hold++});
+  var first=stageStats('Casting');var fpy=first.done?Math.round((n-hold)/n*100):0;
+  Object.keys(c).forEach(function(k){if(c[k]>=threshold&&(!worst||c[k]>c[worst]))worst=k});
+  var h='<div class="hero"><div class="label">Lot '+LOT+' · '+esc(PRODUCT)+'</div><h1>Defect at shipment? Pull <em>one piece</em>, not the carton.</h1><p>Every piece gets a QR code. Every stage inspection is logged on a phone. When something fails, SmartBrass tells you the piece, the carton and the slot.</p></div>';
+  h+='<div class="grid g4">'+
+   '<div class="card kpi"><div class="label">Pieces tracked</div><div class="n mono">'+n+'</div><div class="s">in '+cartonList().length+' cartons</div></div>'+
+   '<div class="card kpi"><div class="label">Ready to ship</div><div class="n mono" style="color:var(--ok)">'+ready+'</div><div class="s">passed all 3 stages</div></div>'+
+   '<div class="card kpi"><div class="label">On hold</div><div class="n mono" style="color:var(--bad)">'+hold+'</div><div class="s">failed a stage</div></div>'+
+   '<div class="card kpi"><div class="label">First-pass yield</div><div class="n mono">'+fpy+'%</div><div class="s">pieces with no failure so far</div></div></div>';
+  h+='<div><h3 style="margin-bottom:10px">Where pieces fail</h3><div class="flow">';
+  STAGES.forEach(function(s){var x=stageStats(s),rate=x.done?Math.round(x.fail/x.done*100):0;
+    h+='<div class="st"><b>'+s+'</b><span class="mono">'+x.done+' inspected</span><span><span class="pill '+(rate>=12?'p-bad':rate>=8?'p-warn':'p-ok')+'">'+rate+'% fail</span></span></div>'});
+  h+='<div class="st"><b>Carton + QR</b><span class="mono">'+cartonList().length+' cartons</span><span><span class="pill p-ok">traceable</span></span></div></div></div>';
+  if(worst){var pr=worst.split('|');h+='<div class="alert"><b>Recurring defect: '+esc(pr[1])+' in '+pr[0].toLowerCase()+' ('+c[worst]+' pieces)</b><span>'+esc(CAUSE[pr[1]])+'</span></div>'}
+  var miss=0;pieces.forEach(function(p){if(status(p)==='wip')miss++});
+  if(miss)h+='<div class="alert warn"><b>Missing record: '+miss+' pieces have no finishing inspection yet</b><span>They cannot be dispatched until it is logged. Open the Inspect tab.</span></div>';
+  return h}
+
+function vInspect(){
+  var wip=pieces.filter(function(p){return status(p)==='wip'});
+  var opts='<option value="new">New piece</option>'+wip.map(function(p){return '<option value="'+p.id+'">'+p.id+' · '+p.carton+' / slot '+p.slot+'</option>'}).join('');
+  var first=wip.length?wip[0].id:'new';
+  var h='<div><h2>Log an inspection</h2><p class="note" style="margin-top:6px">Takes under a minute per piece. Tick every defect you see. No ticks means pass.</p></div>';
+  h+='<div class="card" style="display:grid;gap:16px"><div class="row"><label>Piece<select id="ipiece">'+opts+'</select></label><label>Stage<select id="istage" disabled></select></label><label>Inspector<select id="iby"><option>Artisan (self check)</option><option>Supervisor</option></select></label></div>';
+  h+='<div id="idefects"></div><div class="row"><button class="btn" id="isave">Save inspection</button><span class="note" id="ihint"></span></div></div>';
+  h+='<div id="ilast"></div>';
+  setTimeout(function(){$('#ipiece').value=first;renderInspectForm();$('#ipiece').onchange=renderInspectForm;$('#isave').onclick=saveInspection;if(lastAdded)showLast()},0);
+  return h}
+function renderInspectForm(){
+  var v=$('#ipiece').value,st,p;
+  if(v==='new')st='Casting';else{p=pieces.filter(function(x){return x.id===v})[0];st=nextStage(p)}
+  $('#istage').innerHTML='<option>'+st+'</option>';
+  $('#idefects').innerHTML='<div class="label" style="margin-bottom:8px">'+st+' defects</div><div class="checks">'+DEFECTS[st].map(function(d,i){return '<label class="chk"><input type="checkbox" value="'+esc(d[0])+'"> '+esc(d[0])+'</label>'}).join('')+'</div>';
+  $('#ihint').textContent=v==='new'?'A new piece gets the next carton slot automatically.':'Next pending stage for this piece is chosen for you.'}
+function saveInspection(){
+  var v=$('#ipiece').value,p,st,d=[].slice.call(document.querySelectorAll('#idefects input:checked')).map(function(x){return x.value});
+  if(v==='new'){var i=pieces.length;p={id:'P-'+String(i+1).padStart(4,'0'),carton:'C-'+String(Math.floor(i/CARTON_SIZE)+1).padStart(2,'0'),slot:i%CARTON_SIZE+1,stages:{Casting:null,Polishing:null,Finishing:null},pulled:false};pieces.push(p);st='Casting'}
+  else{p=pieces.filter(function(x){return x.id===v})[0];st=nextStage(p)}
+  p.stages[st]={res:d.length?'fail':'pass',defects:d,day:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+  lastAdded={id:p.id,res:p.stages[st].res,st:st,d:d};selPiece=p.id;
+  toast(p.id+' · '+st+(d.length?' failed: '+d.join(', '):' passed'));
+  render()}
+function showLast(){var l=lastAdded;$('#ilast').innerHTML='<div class="alert '+(l.res==='pass'?'ok':'')+'"><b>'+l.id+' · '+l.st+' '+(l.res==='pass'?'passed':'failed')+'</b><span>'+(l.d.length?esc(l.d.join(', ')):'No defects logged.')+' <a href="#trace" data-go="trace">Generate / scan this piece QR</a></span></div>'}
+
+function vDefects(){
+  var c=counts(),h='<div><h2>Recurring defects</h2><p class="note" style="margin-top:6px">A defect that repeats across pieces points to a process problem, not bad luck. Counts are for lot '+LOT+'.</p></div>';
+  h+='<div class="card"><label style="max-width:360px">Flag a defect when it appears on at least <span class="mono" id="thv">'+threshold+'</span> pieces<input type="range" id="th" min="2" max="10" value="'+threshold+'" style="width:100%;accent-color:var(--brass)"></label></div>';
+  var max=0;Object.keys(c).forEach(function(k){if(c[k]>max)max=c[k]});
+  h+='<div class="grid g2">';
+  STAGES.forEach(function(s){h+='<div class="card"><h3 style="margin-bottom:8px">'+s+'</h3>'+DEFECTS[s].map(function(d){var k=s+'|'+d[0];return barRow(d[0],c[k],max,c[k]>=threshold)}).join('')+'</div>'});
+  h+='</div>';
+  var flagged=Object.keys(c).filter(function(k){return c[k]>=threshold}).sort(function(a,b){return c[b]-c[a]});
+  h+='<div><h3 style="margin-bottom:10px">Suggested checks</h3>';
+  h+=flagged.length?flagged.map(function(k){var pr=k.split('|');return '<div class="alert" style="margin-bottom:8px"><b>'+esc(pr[1])+' · '+pr[0].toLowerCase()+' · '+c[k]+' pieces</b><span>'+esc(CAUSE[pr[1]])+'</span></div>'}).join(''):'<div class="alert ok"><b>No recurring defects at this threshold</b></div>';
+  h+='<p class="note" style="margin-top:8px">Suggested checks are general foundry and finishing practice, meant as prompts for the supervisor.</p></div>';
+  setTimeout(function(){var t=$('#th');if(t)t.oninput=function(){threshold=+t.value;render()}},0);
+  return h}
+
+function vTrace(){
+  var q=pieces.map(function(p){return '<option value="'+p.id+'"'+(p.id===selPiece?' selected':'')+'>'+p.id+' · '+p.carton+'/'+p.slot+' · '+status(p)+'</option>'}).join('');
+  var p=pieces.filter(function(x){return x.id===selPiece})[0]||pieces[0],s=status(p);
+  var h='<div><h2>Scan & find the defect</h2><p class="note" style="margin-top:6px">Save a defect in Inspect, then scan that piece QR here to see the exact recorded stage and defect.</p></div>';
+  h+='<div class="row"><button class="btn" id="startscan">Scan QR with camera</button>'+(lastAdded&&lastAdded.res==='fail'?'<button class="btn ghost" id="demolast">Demo scan: last defect QR</button>':'')+'<span class="note" id="scanmsg">'+(lastAdded&&lastAdded.res==='fail'?'Last defect: '+esc(lastAdded.id):'Choose a piece or scan its QR code.')+'</span></div><div id="scanarea" class="card" hidden><video id="scanvideo" playsinline style="width:100%;max-width:440px;border-radius:6px;background:#111"></video><button class="btn ghost" id="stopscan" style="margin-top:8px">Stop camera</button></div>';
+  h+='<div class="card" style="max-width:420px"><label>Piece<select id="tsel">'+q+'</select></label></div>';
+  h+='<div class="card trace"><div><div class="qr" id="qrbox"></div><p class="note mono" style="margin-top:8px;max-width:180px;word-break:break-all">'+p.id+'</p></div><div style="display:grid;gap:12px;min-width:0">';
+  h+='<div><div class="label">'+esc(PRODUCT)+' · lot '+LOT+'</div><h3 style="font-size:1.8rem">'+p.id+' <span class="pill '+(s==='ready'?'p-ok':s==='hold'?'p-bad':'p-warn')+'" style="vertical-align:middle">'+(s==='ready'?'Ready':s==='hold'?'On hold':'In progress')+'</span></h3><p class="note">Carton '+p.carton+' · slot '+p.slot+'</p></div><ul class="tl">';
+  STAGES.forEach(function(st){var x=p.stages[st];
+    h+='<li><span class="dot '+(x?(x.res==='pass'?'ok':'bad'):'')+'"></span><div><b>'+st+'</b> '+(x?'<span class="note mono">'+x.day+'</span><br>'+(x.res==='pass'?'Passed':'<span style="color:var(--bad)">Failed: '+esc(x.defects.join(', '))+'</span>'):'<span class="note">Not inspected yet</span>')+'</div></li>'});
+  h+='</ul></div></div>';
+  setTimeout(function(){
+    var sel=$('#tsel');if(sel)sel.onchange=function(){selPiece=sel.value;render()};
+    var box=$('#qrbox');if(!box)return;box.innerHTML='';
+  var defectSummary='';STAGES.forEach(function(stage){var rec=p.stages[stage];if(rec&&rec.res==='fail')defectSummary=stage+': '+rec.defects.join(', ')});
+     var txt='SMARTBRASS|'+p.id+'|LOT '+LOT+'|'+p.carton+'|SLOT '+p.slot+'|'+s.toUpperCase()+(defectSummary?'|'+defectSummary:'');
+    try{new QRCode(box,{text:txt,width:168,height:168,colorDark:'#1B1713',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M})}catch(e){box.innerHTML='<p class="note mono">'+esc(txt)+'</p>'}
+     var start=$('#startscan');if(start)start.onclick=startQrScan;var stop=$('#stopscan');if(stop)stop.onclick=stopQrScan;
+     var demo=$('#demolast');if(demo)demo.onclick=function(){selPiece=lastAdded.id;render();setTimeout(function(){var m=$('#scanmsg');if(m)m.textContent='Demo QR read: '+lastAdded.id+' · defect details shown below.'},0)};
+  },0);
+  return h}
+
+function stopQrScan(){if(scanFrame)cancelAnimationFrame(scanFrame);scanFrame=null;if(scanStream)scanStream.getTracks().forEach(function(t){t.stop()});scanStream=null;var v=$('#scanvideo');if(v)v.srcObject=null;var a=$('#scanarea');if(a)a.hidden=true}
+function startQrScan(){var msg=$('#scanmsg'),area=$('#scanarea');if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg.textContent='Camera is unavailable here. Use Demo scan or select the piece.';return}if(!('BarcodeDetector'in window)&&!window.jsQR){msg.textContent='QR reader could not load. Check internet, or use Demo scan.';return}navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(function(stream){scanStream=stream;var video=$('#scanvideo');area.hidden=false;video.srcObject=stream;video.play();msg.textContent='Camera ready. Point it at this piece QR.';var detector=('BarcodeDetector'in window)?new BarcodeDetector({formats:['qr_code']}):null;function frame(){if(!scanStream)return;var read=detector?detector.detect(video).then(function(c){return c.length?c[0].rawValue:''}):Promise.resolve((function(){if(!window.jsQR||video.readyState<2)return'';var c=document.createElement('canvas'),x=c.getContext('2d',{willReadFrequently:true});c.width=video.videoWidth;c.height=video.videoHeight;x.drawImage(video,0,0,c.width,c.height);var d=window.jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height);return d?d.data:''})());read.then(function(value){if(!value){scanFrame=requestAnimationFrame(frame);return}var id=value.split('|')[1],found=pieces.filter(function(piece){return piece.id===id})[0];if(found){selPiece=id;stopQrScan();go('trace')}else{msg.textContent='QR found, but this piece is not in the demo lot.';scanFrame=requestAnimationFrame(frame)}}).catch(function(){scanFrame=requestAnimationFrame(frame)})}frame()}).catch(function(){msg.textContent='Allow camera access, or use Demo scan / choose the piece.'})}
+
+function vBis(){
+  var score=bisScore(),h='<div><h2>BIS quality checklist</h2><p class="note" style="margin-top:6px">Records a buyer or auditor asks for. Stage records fill themselves from your inspections. The rest you tick.</p></div>';
+  h+='<div class="card" style="display:grid;gap:8px"><div class="row" style="align-items:center"><div><div class="label">Record completeness</div><div class="kpi"><span class="n mono" style="font-family:var(--display);font-size:2.6rem;font-weight:800">'+score+'%</span></div></div></div><div class="gauge"><i style="width:'+score+'%"></i></div></div>';
+  h+='<div class="card"><div class="checks" style="grid-template-columns:1fr">';
+  bis.forEach(function(b,i){
+    if(b.auto){var c=autoCoverage(b.auto),ok=c.have===c.need;
+      h+='<div class="chk" style="cursor:default"><span class="pill '+(ok?'p-ok':'p-warn')+'">'+(ok?'Complete':'Missing')+'</span><span style="flex:1">'+esc(b.t)+'</span><span class="mono note">'+c.have+'/'+c.need+'</span></div>'}
+    else{h+='<label class="chk bis" style="grid-template-columns:none"><input type="checkbox" data-b="'+i+'"'+(b.v?' checked':'')+'><span style="flex:1">'+esc(b.t)+'</span><span class="pill '+(b.v?'p-ok':'p-warn')+'">'+(b.v?'On file':'Missing')+'</span></label>'}});
+  h+='</div></div>';
+  var miss=bis.filter(function(b){return b.auto?autoCoverage(b.auto).have!==autoCoverage(b.auto).need:!b.v});
+  h+=miss.length?'<div class="alert warn"><b>'+miss.length+' records missing before dispatch</b><span>'+miss.map(function(b){return esc(b.t)}).join(' · ')+'</span></div>':'<div class="alert ok"><b>All records present</b><span>This lot is ready for an audit or buyer request.</span></div>';
+  h+='<div class="card"><h3 style="margin-bottom:8px">Standards this maps to</h3><div class="scroll"><table><tr><th>Standard</th><th>Title</th><th>Used for</th></tr>'+STDS.map(function(s){return '<tr><td class="mono">'+s[0]+'</td><td>'+esc(s[1])+'</td><td>'+esc(s[2])+'</td></tr>'}).join('')+'</table></div><p class="note" style="margin-top:10px">Illustrative mapping for the demo. Confirm the exact clauses, limits and current version for your product on the <a href="https://www.services.bis.gov.in" target="_blank" rel="noopener">BIS standards portal</a>. A full version would load the standard for each product and build the checklist from it.</p></div>';
+  setTimeout(function(){document.querySelectorAll('[data-b]').forEach(function(x){x.onchange=function(){bis[+x.dataset.b].v=x.checked;render()}})},0);
+  return h}
+
+function vShip(){
+  var cs=cartonList(),h='<div><h2>Dispatch gate</h2><p class="note" style="margin-top:6px">Tap any slot to see that piece. A carton is cleared only when every piece in it passed all three stages.</p></div>';
+  h+='<div class="legend"><span><i class="s-ready"></i>Ready</span><span><i class="s-wip"></i>In progress</span><span><i class="s-hold"></i>Failed, on hold</span></div><div class="cartons">';
+  cs.forEach(function(c){var r=c.items.filter(function(p){return status(p)==='ready'}).length,ok=r===c.items.length&&c.items.length===CARTON_SIZE;
+    h+='<div class="carton"><div class="row" style="align-items:center;flex-wrap:nowrap"><b style="font-family:var(--display);font-size:1.4rem;letter-spacing:.05em;flex:1">CARTON '+c.id+'</b><span class="pill '+(ok?'p-ok':'p-warn')+'" style="flex:0 0 auto">'+(ok?'Cleared':'Held')+'</span></div><div class="slots">'+
+    c.items.map(function(p){return '<button class="slot s-'+status(p)+(complaint===p.id?' s-pulled':'')+'" data-p="'+p.id+'" title="'+p.id+'">'+p.slot+'</button>'}).join('')+'</div><span class="note mono">'+r+'/'+c.items.length+' ready</span></div>'});
+  h+='</div>';
+  var ready=pieces.filter(function(p){return status(p)==='ready'}),pool=ready.length?ready:pieces;
+  h+='<div class="card" style="display:grid;gap:14px"><div><h3>Shipment-day complaint drill</h3><p class="note" style="margin-top:4px">The buyer reports one bad piece. Press the button and see what each way costs you.</p></div><div><button class="btn" id="drill">Report a defect</button></div>';
+  if(complaint){var p=pieces.filter(function(x){return x.id===complaint})[0];
+    var oldMin=pieces.length*3,oldPcs=pieces.length,cartonN=cs.length;
+    h+='<div class="alert warn"><b>'+p.id+' found in carton '+p.carton+', slot '+p.slot+'</b><span>Scan it to see its full stage history. Only this piece is pulled and replaced.</span></div>';
+    h+='<div class="cmp"><div class="card old"><div class="label">Without traceability</div><div class="big mono">'+oldMin+' min</div><p class="note" style="margin-top:6px">Open '+cartonN+' cartons and recheck '+oldPcs+' pieces at about 3 min each, then repack.</p></div>'+
+       '<div class="card new"><div class="label">With SmartBrass</div><div class="big mono">2 min</div><p class="note" style="margin-top:6px">Scan, read carton and slot, pull one piece. '+Math.round((1-2/oldMin)*100)+'% less delay in this drill.</p></div></div><p class="note">Times are demo assumptions. Change them to match your factory.</p>'}
+  h+='</div>';
+  h+='<div class="card" style="display:grid;gap:14px"><div><h3>Inspection cost</h3><p class="note" style="margin-top:4px">Pre-checking in-house means a third-party inspector only needs to sample the lot.</p></div>'+
+    '<div class="row"><label>Pieces in order<input type="number" id="cq" value="'+cost.q+'" min="1"></label><label>Third-party fee per piece (₹)<input type="number" id="cf" value="'+cost.f+'" min="0"></label><label>Share sampled with SmartBrass records (%)<input type="number" id="cs" value="'+cost.s+'" min="1" max="100"></label></div><div id="cres"></div></div>';
+  setTimeout(function(){
+    document.querySelectorAll('.slot').forEach(function(b){b.onclick=function(){selPiece=b.dataset.p;go('trace')}});
+    $('#drill').onclick=function(){complaint=pool[Math.floor(Math.random()*pool.length)].id;render()};
+    ['cq','cf','cs'].forEach(function(id){$('#'+id).oninput=function(){cost.q=+$('#cq').value||0;cost.f=+$('#cf').value||0;cost.s=Math.min(100,Math.max(1,+$('#cs').value||1));calc()}});calc()},0);
+  return h}
+var cost={q:1000,f:10,s:20};
+function calc(){var full=cost.q*cost.f,smart=Math.round(cost.q*cost.s/100)*cost.f,save=full-smart,fmt=function(n){return '₹'+n.toLocaleString('en-IN')};
+  $('#cres').innerHTML='<div class="cmp"><div class="card old"><div class="label">Full third-party inspection</div><div class="big mono">'+fmt(full)+'</div></div><div class="card new"><div class="label">Sampling on SmartBrass records</div><div class="big mono">'+fmt(smart)+'</div><p class="note" style="margin-top:6px">Saves '+fmt(save)+'. Sample size must still meet what your buyer or the standard requires.</p></div></div>'}
+
+/* ---------- shell ---------- */
+function render(){
+  var m=$('#main'),f={overview:vOverview,inspect:vInspect,defects:vDefects,trace:vTrace,bis:vBis,ship:vShip};
+  m.innerHTML='<section class="tab">'+f[cur]()+'</section>';
+  $('#nav').innerHTML=TABS.map(function(t){return '<button role="tab" aria-selected="'+(t[0]===cur)+'" data-t="'+t[0]+'">'+t[1]+'</button>'}).join('');
+  document.querySelectorAll('#nav button').forEach(function(b){b.onclick=function(){go(b.dataset.t)}});
+  document.querySelectorAll('[data-go]').forEach(function(a){a.onclick=function(e){e.preventDefault();go(a.dataset.go)}})}
+function go(t){cur=t;try{history.replaceState(null,'','#'+t)}catch(e){}render();window.scrollTo(0,0)}
+seed();
+var h=(location.hash||'').slice(1);if(TABS.some(function(t){return t[0]===h}))cur=h;
+render();
+})();
+</script>
+
+</body></html>
